@@ -5,15 +5,33 @@ from slack_bolt.adapter.socket_mode import SocketModeHandler
 
 app = App(token=os.environ["SLACK_BOT_TOKEN"])
 member = MEMBER()
+member.get_data_frame()
 
-@app.message('募集')
-def message_hello(message, say):
+@app.message('新規募集')
+def message_new_bosyu(message, say):
     member.reset()
     say(
         blocks=[
             {
                 "type": "section",
-                "text": {"type": "mrkdwn", "text": f"フットサルやるで！"},
+                "text": {"type": "mrkdwn", "text": f"今週もフットサルやるで！"},
+                "accessory": {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text":"VOTE!!"},
+                    "action_id": "button_click"
+                }
+            }
+        ],
+        text=f"Hey there <@{message['user']}>!"
+    )
+
+@app.message('募集')
+def message_bosyu(message, say):
+    say(
+        blocks=[
+            {
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": f"フットサルやろや！"},
                 "accessory": {
                     "type": "button",
                     "text": {"type": "plain_text", "text":"VOTE!!"},
@@ -203,7 +221,7 @@ def open_modal(ack, body, client):
 			"type": "header",
 			"text": {
 				"type": "plain_text",
-				"text": ":tada: みんな待ってるで"
+				"text": f":tada: 投票人数 : {member.total_num()}"
 			}
 		},
 		{
