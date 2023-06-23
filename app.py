@@ -7,12 +7,12 @@ app = App(token=os.environ["SLACK_BOT_TOKEN"])
 member = MEMBER()
 @app.message('募集')
 def message_hello(message, say):
-    member = MEMBER()
+    member.reset()
     say(
         blocks=[
             {
                 "type": "section",
-                "text": {"type": "mrkdwn", "text": f"フットサルいつやりますか？"},
+                "text": {"type": "mrkdwn", "text": f"フットサルやるで！"},
                 "accessory": {
                     "type": "button",
                     "text": {"type": "plain_text", "text":"VOTE!!"},
@@ -41,7 +41,7 @@ def action_button_click(body, ack, client):
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
-				"text": "New Paid Time Off request from <example.com|Fred Enriquez>\n\n<https://example.com|View request>"
+				"text": "積極的な参加をワイは待ってるで！三角の場合はチェック頼むわ!"
 			}
 		},
 		{
@@ -84,6 +84,13 @@ def action_button_click(body, ack, client):
 							"text": "金曜日",
 						},
 						"value": "value-4"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "今週きついわ、、、",
+						},
+						"value": "value-5"
 					}
 				],
 				"action_id": "checkboxes-action"
@@ -105,8 +112,8 @@ def handle_submission(ack, body, client, view, logger):
     date = [x["text"]["text"] for x in can_join_date["selected_options"]]
     date_value=[x["value"] for x in can_join_date["selected_options"]]
     user = body["user"]["id"]
+    member.check_user(body["user"]["name"])
     # 入力値を検証
-    user_info = {}
     errors = {}
     ack()
     msg = ""
@@ -128,9 +135,22 @@ def handle_submission(ack, body, client, view, logger):
     except e:
         logger.exception(f"Failed to post a message {e}")
 @app.message("参加者")
-def show_data(say):
+def show_data(message, say):
     num = member.check_join()
-    say(f'月曜日: {num[0]}人, 火曜日:{num[1]}人, 水曜日:{num[2]}人, 木曜日:{num[3]}人, 金曜日:{num[4]}人')
+    say(
+        blocks=[
+            {
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": '今のところ来るんはこんな感じや、CHECKボタンで見てくれや'},
+                "accessory": {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text":"CHECK!!"},
+                    "action_id": "check_click"
+                }
+            }
+        ],
+        text=f"Hey there <@{message['user']}>!"
+    )
 
 @app.message("help")
 def show_help(message,say):
@@ -159,7 +179,185 @@ def show_help(message,say):
 		}
 	],
     text=f"Hey there <@{message['user']}>!"
-    )
+)
+# ショートカットの呼び出しをリッスン
+@app.action("check_click")
+def open_modal(ack, body, client):
+    # コマンドのリクエストを確認
+    ack()
+    # 組み込みのクライアントで views_open を呼び出し
+    num = member.check_join()
+    client.views_open(
+        # 受け取りから 3 秒以内に有効な trigger_id を渡す
+        trigger_id=body["trigger_id"],
+        # ビューのペイロード
+        view={
+	"title": {
+		"type": "plain_text",
+		"text": "今週はこんだけ来るで"
+	},
+	"type": "modal",
+	"blocks": [
+		{
+			"type": "header",
+			"text": {
+				"type": "plain_text",
+				"text": ":tada: みんな待ってるで"
+			}
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "section",
+			"fields": [
+				{
+					"type": "mrkdwn",
+					"text": "月曜日"
+				},
+				{
+					"type": "mrkdwn",
+					"text": f"*参加人数*\n {num[0]}人"
+				}
+			]
+		},
+		{
+			"type": "context",
+			"elements": [
+				{
+					"type": "mrkdwn",
+					"text": ":fork_and_knife:来る人"
+				}
+			]
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "section",
+			"fields": [
+				{
+					"type": "mrkdwn",
+					"text": "火曜日"
+				},
+				{
+					"type": "mrkdwn",
+					"text": f"*参加人数*\n {num[1]}人"
+				}
+			]
+		},
+		{
+			"type": "context",
+			"elements": [
+				{
+					"type": "mrkdwn",
+					"text": ":fork_and_knife:来る人"
+				}
+			]
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "section",
+			"fields": [
+				{
+					"type": "mrkdwn",
+					"text": "水曜日"
+				},
+				{
+					"type": "mrkdwn",
+					"text": f"*参加人数*\n {num[2]}人"
+				}
+			]
+		},
+		{
+			"type": "context",
+			"elements": [
+				{
+					"type": "mrkdwn",
+					"text": ":fork_and_knife:来る人"
+				}
+			]
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "section",
+			"fields": [
+				{
+					"type": "mrkdwn",
+					"text": "木曜日"
+				},
+				{
+					"type": "mrkdwn",
+					"text": f"*参加人数*\n {num[3]}人"
+				}
+			]
+		},
+		{
+			"type": "context",
+			"elements": [
+				{
+					"type": "mrkdwn",
+					"text": ":fork_and_knife:来る人"
+				}
+			]
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "section",
+			"fields": [
+				{
+					"type": "mrkdwn",
+					"text": "金曜日"
+				},
+				{
+					"type": "mrkdwn",
+					"text": f"*参加人数*\n {num[4]}人"
+				}
+			]
+		},
+		{
+			"type": "context",
+			"elements": [
+				{
+					"type": "mrkdwn",
+					"text": ":fork_and_knife:来る人"
+				}
+			]
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "section",
+			"fields": [
+				{
+					"type": "mrkdwn",
+					"text": "今週きついわ、、、"
+				},
+				{
+					"type": "mrkdwn",
+					"text": f"*ごめんやで*\n {num[5]}人"
+				}
+			]
+		},
+		{
+			"type": "context",
+			"elements": [
+				{
+					"type": "mrkdwn",
+					"text": ":fork_and_knife:来週は行くかも"
+				}
+			]
+		}
+	]
+}
+)
 
 if __name__ == "__main__":
     handler = SocketModeHandler(app, os.environ["SLACK_APP_TOKEN"])
