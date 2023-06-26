@@ -5,7 +5,7 @@ from slack_bolt.adapter.socket_mode import SocketModeHandler
 
 app = App(token=os.environ["SLACK_BOT_TOKEN"])
 member = MEMBER()
-member.get_data_frame()
+#member.get_data_frame()
 
 @app.message('新規募集')
 def message_new_bosyu(message, say):
@@ -158,7 +158,6 @@ def handle_submission(ack, body, client, view, logger):
         logger.exception(f"Failed to post a message {e}")
 @app.message("参加者")
 def show_data(message, say):
-    num = member.check_join()
     say(
         blocks=[
             {

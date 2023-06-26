@@ -18,6 +18,7 @@ class MEMBER():
             return False
 
     def data_post(self, user_id, date_value):
+        self.df = pd.read_csv("data.csv")
         list_data = [0, 0, 0, 0, 0, 0]
         for value in date_value:
             index = int(value[-1])
@@ -26,6 +27,7 @@ class MEMBER():
         self.df.to_csv("data.csv")
 
     def init_post(self, user_id, date_value):
+        self.df = pd.read_csv("data.csv")
         list_data = [user_id, 0,0,0,0,0, 0]
         for value in date_value:
             index = int(value[-1])
