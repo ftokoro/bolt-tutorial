@@ -14,7 +14,7 @@ def message_new_bosyu(message, say):
         blocks=[
             {
                 "type": "section",
-                "text": {"type": "mrkdwn", "text": f"今週もフットサルやるで！"},
+                "text": {"type": "mrkdwn", "text": f"今週もフットサルやるで！、VOTE!!から投票してな！"},
                 "accessory": {
                     "type": "button",
                     "text": {"type": "plain_text", "text":"VOTE!!"},
@@ -24,6 +24,9 @@ def message_new_bosyu(message, say):
         ],
         text=f"Hey there <@{message['user']}>!"
     )
+@app.message("ごめん")
+def message_hello(message, say):
+    say(f"<@{message['user']}>なめやがって、")
 
 @app.message('募集')
 def message_bosyu(message, say):
